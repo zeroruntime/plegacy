@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_create %}Add{% else %}Edit{% endif %} Admission Record - PRESEC Admissions{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-800 mb-2">
+        {% if is_create %}
+        Add New Admission Record
+        {% else %}
+        Edit Admission Record
+        {% endif %}
+    </h1>
+    <p class="text-gray-600">Complete all required fields to {% if is_create %}create{% else %}update{% endif %} the record</p>
+</div>
+
+<!-- Form -->
+<form method="post" enctype="multipart/form-data" class="space-y-8">
+    {% csrf_token %}
+
+    <!-- Display form errors -->
+    {% if form.non_field_errors %}
+    <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg">
+        <p class="font-semibold mb-2">Please correct the errors below:</p>
+        {% for error in form.non_field_errors %}
+            <p>• {{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- APPLICANT DETAILS -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">Section A: Applicant Details</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Full Name -->
+            <div class="md:col-span-2">
+                <label for="{{ form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.full_name.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.full_name }}
+                {% if form.full_name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.full_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Date of Birth -->
+            <div>
+                <label for="{{ form.date_of_birth.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.date_of_birth.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.date_of_birth }}
+                {% if form.date_of_birth.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.date_of_birth.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Gender -->
+            <div>
+                <label for="{{ form.gender.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.gender.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.gender }}
+                {% if form.gender.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.gender.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Nationality -->
+            <div>
+                <label for="{{ form.nationality.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.nationality.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.nationality }}
+                {% if form.nationality.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.nationality.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Previous School -->
+            <div>
+                <label for="{{ form.previous_school.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.previous_school.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.previous_school }}
+                {% if form.previous_school.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.previous_school.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Class Completed -->
+            <div>
+                <label for="{{ form.class_completed.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.class_completed.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.class_completed }}
+                {% if form.class_completed.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.class_completed.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- BECE INFORMATION -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">Section B: BECE Information</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- BECE Index Number -->
+            <div>
+                <label for="{{ form.bece_index_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.bece_index_number.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.bece_index_number }}
+                {% if form.bece_index_number.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.bece_index_number.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- BECE Year -->
+            <div>
+                <label for="{{ form.bece_year.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.bece_year.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.bece_year }}
+                {% if form.bece_year.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.bece_year.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Aggregate Score -->
+            <div>
+                <label for="{{ form.aggregate_score.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.aggregate_score.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.aggregate_score }}
+                {% if form.aggregate_score.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.aggregate_score.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Subjects and Grades -->
+            <div class="md:col-span-2">
+                <label for="{{ form.subjects_and_grades.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.subjects_and_grades.label }}
+                </label>
+                {{ form.subjects_and_grades }}
+                {% if form.subjects_and_grades.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.subjects_and_grades.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- PROGRAM & ACCOMMODATION -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">Section C: Program & Accommodation</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Program Applied For -->
+            <div>
+                <label for="{{ form.program_applied_for.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.program_applied_for.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.program_applied_for }}
+                {% if form.program_applied_for.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.program_applied_for.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Accommodation Status -->
+            <div>
+                <label for="{{ form.accommodation_status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.accommodation_status.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.accommodation_status }}
+                {% if form.accommodation_status.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.accommodation_status.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- PARENT/GUARDIAN INFORMATION -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">Section D: Parent/Guardian Information</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Parent Name -->
+            <div>
+                <label for="{{ form.parent_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.parent_name.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.parent_name }}
+                {% if form.parent_name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.parent_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Parent Relationship -->
+            <div>
+                <label for="{{ form.parent_relationship.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.parent_relationship.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.parent_relationship }}
+                {% if form.parent_relationship.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.parent_relationship.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Parent Occupation -->
+            <div>
+                <label for="{{ form.parent_occupation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.parent_occupation.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.parent_occupation }}
+                {% if form.parent_occupation.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.parent_occupation.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Parent Contact -->
+            <div>
+                <label for="{{ form.parent_contact.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.parent_contact.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.parent_contact }}
+                {% if form.parent_contact.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.parent_contact.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Parent Address -->
+            <div class="md:col-span-2">
+                <label for="{{ form.parent_address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.parent_address.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.parent_address }}
+                {% if form.parent_address.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.parent_address.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Parent Email -->
+            <div class="md:col-span-2">
+                <label for="{{ form.parent_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.parent_email.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.parent_email }}
+                {% if form.parent_email.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.parent_email.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ALUMNI SPONSORSHIP/ENDORSEMENT -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">Section E: Alumni Sponsorship/Endorsement</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Alumni Name -->
+            <div>
+                <label for="{{ form.alumni_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.alumni_name.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.alumni_name }}
+                {% if form.alumni_name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.alumni_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Alumni Year Group -->
+            <div>
+                <label for="{{ form.alumni_year_group.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.alumni_year_group.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.alumni_year_group }}
+                {% if form.alumni_year_group.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.alumni_year_group.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Alumni Class Stream -->
+            <div>
+                <label for="{{ form.alumni_class_stream.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.alumni_class_stream.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.alumni_class_stream }}
+                {% if form.alumni_class_stream.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.alumni_class_stream.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Alumni House -->
+            <div>
+                <label for="{{ form.alumni_house.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.alumni_house.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.alumni_house }}
+                {% if form.alumni_house.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.alumni_house.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Alumni Phone -->
+            <div>
+                <label for="{{ form.alumni_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.alumni_phone.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.alumni_phone }}
+                {% if form.alumni_phone.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.alumni_phone.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Alumni Email -->
+            <div>
+                <label for="{{ form.alumni_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.alumni_email.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.alumni_email }}
+                {% if form.alumni_email.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.alumni_email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Alumni Occupation -->
+            <div>
+                <label for="{{ form.alumni_occupation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.alumni_occupation.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.alumni_occupation }}
+                {% if form.alumni_occupation.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.alumni_occupation.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Alumni Organization -->
+            <div>
+                <label for="{{ form.alumni_organization.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.alumni_organization.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.alumni_organization }}
+                {% if form.alumni_organization.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.alumni_organization.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Alumni Relationship -->
+            <div>
+                <label for="{{ form.alumni_relationship.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.alumni_relationship.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.alumni_relationship }}
+                {% if form.alumni_relationship.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.alumni_relationship.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Reason for Recommendation -->
+            <div class="md:col-span-2">
+                <label for="{{ form.reason_for_recommendation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.reason_for_recommendation.label }} <span class="text-red-600">*</span>
+                </label>
+                {{ form.reason_for_recommendation }}
+                {% if form.reason_for_recommendation.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.reason_for_recommendation.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- FILE ATTACHMENTS -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">Section F: File Attachments</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- BECE Results -->
+            <div>
+                <label for="{{ form.bece_results.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.bece_results.label }} <span class="text-red-600">*</span> (PDF, DOC and IMG are accepted)
+                </label>
+                {{ form.bece_results }}
+                {% if form.bece_results.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.bece_results.errors.0 }}</p>
+                {% endif %}
+                <p class="text-xs text-gray-500 mt-1">Copy of BECE Results Slip</p>
+            </div>
+
+            <!-- Passport Photo -->
+            <div>
+                <label for="{{ form.passport_photo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.passport_photo.label }} <span class="text-red-600">*</span> (Only IMGs are accepted)
+                </label>
+                {{ form.passport_photo }}
+                {% if form.passport_photo.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.passport_photo.errors.0 }}</p>
+                {% endif %}
+                <p class="text-xs text-gray-500 mt-1">Passport-size photograph</p>
+            </div>
+
+            <!-- Birth Certificate -->
+            <div>
+                <label for="{{ form.birth_certificate.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.birth_certificate.label }} <span class="text-red-600">*</span> (PDF, DOC and IMG are accepted)
+                </label>
+                {{ form.birth_certificate }}
+                {% if form.birth_certificate.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.birth_certificate.errors.0 }}</p> 
+                {% endif %}
+                <p class="text-xs text-gray-500 mt-1">Copy of birth certificate</p>
+            </div>
+
+            <!-- Medical Form -->
+            <div>
+                <label for="{{ form.medical_form.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.medical_form.label }} (PDF, DOC and IMG are accepted)
+                </label>
+                {{ form.medical_form }}
+                {% if form.medical_form.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.medical_form.errors.0 }}</p>
+                {% endif %}
+                <p class="text-xs text-gray-500 mt-1">Medical form (optional)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex gap-4">
+        <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-semibold">
+            {% if is_create %}
+            Create Record
+            {% else %}
+            Update Record
+            {% endif %}
+        </button>
+        <a href="{% url 'admissions:admission_list' %}" class="bg-gray-400 text-white px-8 py-3 rounded-lg hover:bg-gray-500 transition font-semibold">
+            Cancel
+        </a>
+    </div>
+</form>
+
+{% endblock %}

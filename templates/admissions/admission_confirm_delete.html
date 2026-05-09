@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Admission - PRESEC Admissions{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-12">
+    <div class="bg-white rounded-lg shadow-md p-8 border-l-4 border-red-600">
+        <h1 class="text-3xl font-bold text-red-600 mb-2">Delete Record</h1>
+        <p class="text-gray-600 mb-6">This action cannot be undone.</p>
+
+        <!-- Confirmation Message -->
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p class="text-gray-800 mb-2">
+                Are you sure you want to delete the admission record for:
+            </p>
+            <p class="text-lg font-bold text-red-600">{{ admission.full_name }}</p>
+            <p class="text-sm text-gray-600 mt-2">
+                Submitted by {{ admission.submitted_by.get_full_name|default:admission.submitted_by.username }} on {{ admission.date_submitted|date:"M d, Y" }}
+            </p>
+        </div>
+
+        <!-- Applicant Summary -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <h3 class="font-semibold text-gray-800 mb-3">Record Details:</h3>
+            <ul class="text-sm text-gray-700 space-y-2">
+                <li><strong>Program Applied:</strong> {{ admission.program_applied_for }}</li>
+                <li><strong>Accommodation:</strong> {{ admission.accommodation_status }}</li>
+                <li><strong>BECE Year:</strong> {{ admission.bece_year }}</li>
+                <li><strong>Alumni Sponsor:</strong> {{ admission.alumni_name }}</li>
+            </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <form method="post" class="mb-4">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-bold mb-3">
+                Yes, Delete This Record
+            </button>
+        </form>
+
+        <a href="{% url 'admissions:admission_detail' admission.pk %}" class="block w-full bg-gray-400 text-white py-3 rounded-lg hover:bg-gray-500 transition font-bold text-center">
+            Cancel, Keep This Record
+        </a>
+    </div>
+</div>
+
+{% endblock %}

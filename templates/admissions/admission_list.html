@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Admission Records - PRESEC Admissions{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Admission Records</h1>
+            <p class="text-gray-600">
+                {% if is_admin %}
+                Viewing all submissions
+                {% else %}
+                Submissions from your year group ({{ user.year_group }})
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'admissions:admission_create' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold">
+            + Add Record
+        </a>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <form method="get" class="space-y-4 lg:space-y-0 lg:flex gap-4">
+        <!-- Search -->
+        <div class="flex-1">
+            <input
+                type="text"
+                name="search"
+                placeholder="Search by applicant name, program, or alumni..."
+                value="{{ search_query }}"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            />
+        </div>
+
+        <!-- Program Filter -->
+        <div class="flex-1">
+            <input
+                type="text"
+                name="program"
+                placeholder="Filter by program..."
+                value="{{ program_filter }}"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            />
+        </div>
+
+        <!-- Accommodation Filter -->
+        <div class="flex-1">
+            <select
+                name="accommodation"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            >
+                <option value="">All Accommodations</option>
+                <option value="Boarding" {% if accommodation_filter == "Boarding" %}selected{% endif %}>Boarding</option>
+                <option value="Day" {% if accommodation_filter == "Day" %}selected{% endif %}>Day</option>
+            </select>
+        </div>
+
+        <!-- Year Group Filter (Admin Only) -->
+        {% if is_admin %}
+        <div class="flex-1">
+            <select
+                name="year_group"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            >
+                <option value="">All Year Groups</option>
+                {% for year_group in year_groups %}
+                <option value="{{ year_group }}" {% if year_group_filter == year_group %}selected{% endif %}>{{ year_group }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <!-- Search Button -->
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-semibold">
+            Search
+        </button>
+
+        <!-- Clear Button -->
+        <a href="{% url 'admissions:admission_list' %}" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition font-semibold">
+            Clear
+        </a>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="mb-4 text-gray-600">
+    <p>
+        Found <strong>{{ records.paginator.count }}</strong> record{{ records.paginator.count|pluralize }}
+        {% if search_query %}
+        matching "<strong>{{ search_query }}</strong>"
+        {% endif %}
+    </p>
+</div>
+
+<!-- Records Table -->
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    {% if records %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Applicant Name</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Program</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Accommodation</th>
+                            {% if is_admin %}
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Submitted By</th>
+                            {% endif %}
+
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date Submitted</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 font-semibold text-gray-800">{{ record.full_name }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ record.program_applied_for }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold {% if record.accommodation_status == 'Boarding' %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ record.accommodation_status }}
+                        </span>
+                    </td>
+                    {% if is_admin %}
+
+                    <td class="px-6 py-4 text-gray-600 text-sm">
+                        <div>{{ record.submitted_by.get_full_name|default:record.submitted_by.username }}</div>
+                        <div class="text-xs text-gray-500">({{ record.submitted_by.year_group }})</div>
+                    </td>
+                    {% endif %}
+
+                    <td class="px-6 py-4 text-gray-600 text-sm">{{ record.date_submitted|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'admissions:admission_detail' record.pk %}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
+                                View
+                            </a>
+                            <a href="{% url 'admissions:admission_edit' record.pk %}" class="text-orange-600 hover:text-orange-800 font-semibold text-sm">
+                                Edit
+                            </a>
+                            <a href="{% url 'admissions:admission_delete' record.pk %}" class="text-red-600 hover:text-red-800 font-semibold text-sm">
+                                Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if records.has_other_pages %}
+    <div class="px-6 py-4 border-t bg-gray-50 flex justify-center">
+        <nav class="inline-flex space-x-2">
+            {% if records.has_previous %}
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if program_filter %}&program={{ program_filter }}{% endif %}{% if accommodation_filter %}&accommodation={{ accommodation_filter }}{% endif %}{% if year_group_filter %}&year_group={{ year_group_filter }}{% endif %}" class="px-3 py-2 border rounded text-gray-600 hover:bg-gray-100">First</a>
+            <a href="?page={{ records.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if program_filter %}&program={{ program_filter }}{% endif %}{% if accommodation_filter %}&accommodation={{ accommodation_filter }}{% endif %}{% if year_group_filter %}&year_group={{ year_group_filter }}{% endif %}" class="px-3 py-2 border rounded text-gray-600 hover:bg-gray-100">Previous</a>
+            {% endif %}
+
+            {% for num in records.paginator.page_range %}
+                {% if records.number == num %}
+                <span class="px-3 py-2 border rounded bg-blue-600 text-white">{{ num }}</span>
+                {% else %}
+                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if program_filter %}&program={{ program_filter }}{% endif %}{% if accommodation_filter %}&accommodation={{ accommodation_filter }}{% endif %}{% if year_group_filter %}&year_group={{ year_group_filter }}{% endif %}" class="px-3 py-2 border rounded text-gray-600 hover:bg-gray-100">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if records.has_next %}
+            <a href="?page={{ records.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if program_filter %}&program={{ program_filter }}{% endif %}{% if accommodation_filter %}&accommodation={{ accommodation_filter }}{% endif %}{% if year_group_filter %}&year_group={{ year_group_filter }}{% endif %}" class="px-3 py-2 border rounded text-gray-600 hover:bg-gray-100">Next</a>
+            <a href="?page={{ records.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if program_filter %}&program={{ program_filter }}{% endif %}{% if accommodation_filter %}&accommodation={{ accommodation_filter }}{% endif %}{% if year_group_filter %}&year_group={{ year_group_filter }}{% endif %}" class="px-3 py-2 border rounded text-gray-600 hover:bg-gray-100">Last</a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="px-6 py-12 text-center text-gray-600">
+        <p class="text-lg font-semibold mb-2">No records found</p>
+        <p class="mb-4">
+            {% if search_query %}
+            Try adjusting your search criteria.
+            {% else %}
+            Start by <a href="{% url 'admissions:admission_create' %}" class="text-blue-600 hover:underline font-semibold">adding a new record</a>.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

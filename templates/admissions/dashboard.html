@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PRESEC BECE Admissions{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-800 mb-2">
+        Welcome back!
+    </h1>
+    <p class="text-gray-600">Manage admission recommendations for your year group</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+
+    <!-- Total Records Card -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6">
+
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-gray-800"></i>
+        </div>
+
+        <div class="mt-5">
+            <span class="text-sm text-gray-500">
+                {% if user.is_admin %}
+                    Total Submissions
+                {% else %}
+                    Your Submissions
+                {% endif %}
+            </span>
+
+            <h4 class="mt-2 text-title-sm font-bold text-gray-800">
+                {{ total_records }}
+            </h4>
+
+            <p class="text-xs text-gray-500 mt-1">
+                {% if user.is_admin %}
+                    Across all year groups
+                {% else %}
+                    From {{ year_group }} class
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Quick Action Card -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6">
+
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100">
+            <i data-lucide="plus" class="w-5 h-5 text-gray-800"></i>
+        </div>
+
+        <a href="{% url 'admissions:admission_create' %}">
+            <div class="mt-5 flex items-end justify-between">
+                <div>
+                    <span class="text-sm text-gray-500">
+                        Quick Action
+                    </span>
+
+                    <h4 class="mt-2 text-title-sm font-bold text-gray-800">
+                        Create
+                    </h4>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                        Add a new admission record
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+</div>
+
+<!-- Info Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- System Info -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">
+            System Information
+        </h2>
+
+        <div class="space-y-3">
+
+            <div class="flex justify-between items-center pb-2 border-b">
+                <span class="text-gray-600">Your Role:</span>
+                <span class="font-semibold text-blue-600">
+                    {{ user.get_role_display }}
+                </span>
+            </div>
+
+            <div class="flex justify-between items-center pb-2 border-b">
+                <span class="text-gray-600">Year Group:</span>
+                <span class="font-semibold text-blue-600">
+                    {{ user.year_group|default:"N/A" }}
+                </span>
+            </div>
+
+            {% if user.is_admin %}
+            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                <p class="text-sm text-blue-700">
+                    <strong>Admin Access:</strong>
+                    You can view and manage all submissions across all year groups.
+                </p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">
+            Quick Links
+        </h2>
+
+        <div class="space-y-3">
+
+            <a href="{% url 'admissions:admission_list' %}"
+               class="block p-3 bg-gray-50 hover:bg-gray-100 rounded transition">
+
+                <p class="font-semibold text-gray-800">
+                    View All Records
+                </p>
+
+                <p class="text-xs text-gray-500">
+                    Browse and manage admission submissions
+                </p>
+            </a>
+
+            <a href="{% url 'admissions:admission_create' %}"
+               class="block p-3 bg-gray-50 hover:bg-gray-100 rounded transition">
+
+                <p class="font-semibold text-gray-800">
+                    Create New Record
+                </p>
+
+                <p class="text-xs text-gray-500">
+                    Submit a new admission recommendation
+                </p>
+            </a>
+
+            {% if user.is_admin %}
+            <a href="{% url 'admissions:export_detailed' %}"
+               class="block p-3 bg-blue-50 hover:bg-blue-100 rounded transition border border-blue-200">
+
+                <p class="font-semibold text-blue-800">
+                    <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>Export Detailed Excel
+                </p>
+
+                <p class="text-xs text-blue-600">
+                    All records with images and details
+                </p>
+            </a>
+
+            <a href="{% url 'admissions:export_summary' %}"
+               class="block p-3 bg-green-50 hover:bg-green-100 rounded transition border border-green-200">
+
+                <p class="font-semibold text-green-800">
+                    <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>Export Summary Excel
+                </p>
+
+                <p class="text-xs text-green-600">
+                    Key information export for quick review
+                </p>
+            </a>
+
+            <a href="/admin/"
+               class="block p-3 bg-gray-50 hover:bg-gray-100 rounded transition">
+
+                <p class="font-semibold text-gray-800">
+                    Admin Panel
+                </p>
+
+                <p class="text-xs text-gray-500">
+                    Access Django admin interface
+                </p>
+            </a>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
