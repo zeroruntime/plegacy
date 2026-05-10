@@ -54,6 +54,9 @@ class AdmissionRecordForm(forms.ModelForm):
             'passport_photo',
             'birth_certificate',
             'medical_form',
+            
+            # Status
+            'status',
         ]
         
         widgets = {
@@ -197,10 +200,15 @@ class AdmissionRecordForm(forms.ModelForm):
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
                 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png',
             }),
+            'status': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
+            }),
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Make medical_form optional
         self.fields['medical_form'].required = False
+        # Make BECE results optional (will be uploaded later)
+        self.fields['bece_results'].required = False
         self.fields['subjects_and_grades'].required = False

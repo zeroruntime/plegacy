@@ -20,6 +20,12 @@ class AdmissionRecord(models.Model):
         ('Day', 'Day'),
     ]
     
+    # Application status choices
+    STATUS_CHOICES = [
+        ('incomplete', 'Incomplete - Awaiting BECE Results'),
+        ('complete', 'Complete - Ready for Review'),
+    ]
+    
     # ============ APPLICANT DETAILS ============
     full_name = models.CharField(
         max_length=255,
@@ -140,6 +146,8 @@ class AdmissionRecord(models.Model):
     # ============ FILE ATTACHMENTS ============
     bece_results = models.FileField(
         upload_to='attachments/bece_results/',
+        blank=True,
+        null=True,
         help_text="Copy of BECE Results Slip"
     )
     passport_photo = models.ImageField(
@@ -167,6 +175,12 @@ class AdmissionRecord(models.Model):
     date_submitted = models.DateTimeField(
         auto_now_add=True,
         help_text="Date and time when the record was submitted"
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='incomplete',
+        help_text="Application completion status"
     )
     
     class Meta:

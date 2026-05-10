@@ -110,6 +110,7 @@
                             {% endif %}
 
                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date Submitted</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                 </tr>
             </thead>
@@ -132,6 +133,17 @@
                     {% endif %}
 
                     <td class="px-6 py-4 text-gray-600 text-sm">{{ record.date_submitted|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4">
+                        {% if record.status == 'incomplete' %}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+                            Incomplete
+                        </span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                            Complete
+                        </span>
+                        {% endif %}
+                    </td>
                     <td class="px-6 py-4">
                         <div class="flex space-x-2">
                             <a href="{% url 'admissions:admission_detail' record.pk %}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">

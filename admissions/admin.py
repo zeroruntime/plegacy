@@ -11,6 +11,7 @@ class AdmissionRecordAdmin(admin.ModelAdmin):
         'full_name',
         'program_applied_for',
         'accommodation_status',
+        'status',
         'submitted_by',
         'date_submitted',
     ]
@@ -19,6 +20,7 @@ class AdmissionRecordAdmin(admin.ModelAdmin):
         'date_submitted',
         'program_applied_for',
         'accommodation_status',
+        'status',
         'submitted_by__year_group',
         'submitted_by',
     ]
@@ -96,6 +98,7 @@ class AdmissionRecordAdmin(admin.ModelAdmin):
             'fields': (
                 'submitted_by',
                 'date_submitted',
+                'status',
             ),
             'classes': ('collapse',)
         }),

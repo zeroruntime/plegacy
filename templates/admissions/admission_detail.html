@@ -20,6 +20,27 @@
     {% endif %}
 </div>
 
+<!-- Status Warning for Incomplete Applications -->
+{% if admission.status == 'incomplete' %}
+<div class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+    <div class="flex items-start">
+        <div class="flex-shrink-0">
+            <svg class="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 0v-2m0 2H8m8 0h-4m6-4h-2m-8 0h2m0-8h.01M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <p class="text-sm font-medium text-yellow-800">
+                <strong>Important:</strong> This application is currently incomplete and will <strong>NOT</strong> be considered for admission until the BECE results are uploaded.
+            </p>
+            <p class="text-sm text-yellow-700 mt-1">
+                Please <a href="{% url 'admissions:admission_edit' admission.pk %}" class="font-semibold underline">add the BECE results</a> as soon as they become available.
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Details Sections -->
 <div class="space-y-6">
     <!-- APPLICANT DETAILS -->

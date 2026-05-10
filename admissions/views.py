@@ -187,7 +187,11 @@ def admission_edit(request, pk):
     if request.method == 'POST':
         form = AdmissionRecordForm(request.POST, request.FILES, instance=admission)
         if form.is_valid():
-            form.save()
+            updated_admission = form.save(commit=False)
+            # Auto-update status to complete if BECE results are now present
+            if updated_admission.bece_results:
+                updated_admission.status = 'complete'
+            updated_admission.save()
             messages.success(request, f'Admission record for {admission.full_name} updated successfully!')
             return redirect('admissions:admission_detail', pk=admission.pk)
     else:
