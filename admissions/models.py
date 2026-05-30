@@ -1,6 +1,13 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from .choices import (
+    ALUMNI_HOUSE_CHOICES,
+    ALUMNI_RELATIONSHIP_CHOICES,
+    ALUMNI_YEAR_GROUP_CHOICES,
+    PARENT_RELATIONSHIP_CHOICES,
+    PROGRAM_CHOICES,
+)
 
 
 class AdmissionRecord(models.Model):
@@ -24,6 +31,12 @@ class AdmissionRecord(models.Model):
     STATUS_CHOICES = [
         ('incomplete', 'Incomplete - Awaiting BECE Results'),
         ('complete', 'Complete - Ready for Review'),
+    ]
+
+    VALIDATION_STATUS_CHOICES = [
+        ('pending', 'Pending President Validation'),
+        ('approved', 'Approved'),
+        ('rejected', 'Needs Revision'),
     ]
     
     # ============ APPLICANT DETAILS ============
@@ -71,6 +84,7 @@ class AdmissionRecord(models.Model):
     # ============ PROGRAM & ACCOMMODATION ============
     program_applied_for = models.CharField(
         max_length=100,
+        choices=PROGRAM_CHOICES,
         help_text="Program applied for (General Science, Business, etc.)"
     )
     accommodation_status = models.CharField(
@@ -86,6 +100,7 @@ class AdmissionRecord(models.Model):
     )
     parent_relationship = models.CharField(
         max_length=50,
+        choices=PARENT_RELATIONSHIP_CHOICES,
         help_text="Relationship to applicant (Parent, Guardian, etc.)"
     )
     parent_occupation = models.CharField(
@@ -109,8 +124,9 @@ class AdmissionRecord(models.Model):
         help_text="Full name of PRESEC Old Boy"
     )
     alumni_year_group = models.CharField(
-        max_length=4,
-        help_text="Alumni's year group (e.g., 1998, 2005)"
+        max_length=20,
+        choices=ALUMNI_YEAR_GROUP_CHOICES,
+        help_text="Alumni's year group (e.g., 1998, 2005, 1993_shs)"
     )
     alumni_class_stream = models.CharField(
         max_length=100,
@@ -118,6 +134,7 @@ class AdmissionRecord(models.Model):
     )
     alumni_house = models.CharField(
         max_length=100,
+        choices=ALUMNI_HOUSE_CHOICES,
         help_text="Alumni's house at PRESEC"
     )
     alumni_phone = models.CharField(
@@ -137,6 +154,7 @@ class AdmissionRecord(models.Model):
     )
     alumni_relationship = models.CharField(
         max_length=100,
+        choices=ALUMNI_RELATIONSHIP_CHOICES,
         help_text="Alumni's relationship to applicant"
     )
     reason_for_recommendation = models.TextField(
@@ -182,6 +200,29 @@ class AdmissionRecord(models.Model):
         default='incomplete',
         help_text="Application completion status"
     )
+    validation_status = models.CharField(
+        max_length=20,
+        choices=VALIDATION_STATUS_CHOICES,
+        default='pending',
+        help_text="Year group president validation status"
+    )
+    validated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='validated_admission_records',
+        blank=True,
+        null=True,
+        help_text="President or admin who validated this admission record"
+    )
+    validated_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Date and time when the record was validated"
+    )
+    validation_notes = models.TextField(
+        blank=True,
+        help_text="Notes from the validator, especially when revision is needed"
+    )
     
     class Meta:
         ordering = ['-date_submitted']
@@ -189,6 +230,8 @@ class AdmissionRecord(models.Model):
         verbose_name_plural = 'Admission Records'
         indexes = [
             models.Index(fields=['submitted_by', '-date_submitted']),
+            models.Index(fields=['alumni_year_group', 'validation_status']),
+            models.Index(fields=['validation_status', '-date_submitted']),
             models.Index(fields=['full_name']),
         ]
     

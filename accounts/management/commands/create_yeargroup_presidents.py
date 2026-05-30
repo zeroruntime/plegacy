@@ -4,22 +4,14 @@ import string
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from accounts.models import CustomUser
+from admissions.choices import ALUMNI_SPECIAL_YEAR_GROUPS, ALUMNI_YEAR_GROUPS
 
 
 class Command(BaseCommand):
     help = 'Create default accounts for year group presidents (1971-2015 + special variants)'
 
     def handle(self, *args, **options):
-        # Define all year groups: regular years (1971-2015) + special variants
-        year_groups = []
-        
-        # Add regular years from 1971 to 2015
-        for year in range(1971, 2016):
-            year_groups.append(str(year))
-        
-        # Add special variants
-        special_variants = ['1993_shs', '1993_olevel', '1994_shs', '1994_olevel']
-        year_groups.extend(special_variants)
+        year_groups = ALUMNI_YEAR_GROUPS
         
         # Generate credentials and store them
         credentials = []
@@ -92,8 +84,8 @@ class Command(BaseCommand):
         md_file_path = project_root / 'presec_admissions_credentials.md'
         
         # Group credentials by regular and special years
-        regular_creds = [c for c in credentials if len(c['year_group']) <= 4]
-        special_creds = [c for c in credentials if len(c['year_group']) > 4]
+        regular_creds = [c for c in credentials if c['year_group'] not in ALUMNI_SPECIAL_YEAR_GROUPS]
+        special_creds = [c for c in credentials if c['year_group'] in ALUMNI_SPECIAL_YEAR_GROUPS]
         
         # Sort for readability
         regular_creds.sort(key=lambda x: int(x['year_group']))

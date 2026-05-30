@@ -3,7 +3,32 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .forms import LoginForm
+from .forms import IndividualRegistrationForm, LoginForm
+
+
+@require_http_methods(['GET', 'POST'])
+def register_view(request):
+    """
+    Let individuals create their own account for admission submissions.
+    """
+    if request.user.is_authenticated:
+        return redirect('admissions:dashboard')
+
+    if request.method == 'POST':
+        form = IndividualRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Your account has been created. You can now submit admission details for validation.')
+            return redirect('admissions:admission_create')
+    else:
+        form = IndividualRegistrationForm()
+
+    context = {
+        'form': form,
+        'page_title': 'Create Account',
+    }
+    return render(request, 'accounts/register.html', context)
 
 
 @require_http_methods(['GET', 'POST'])

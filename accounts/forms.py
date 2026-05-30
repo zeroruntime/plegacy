@@ -10,7 +10,7 @@ class CustomUserCreationForm(UserCreationForm):
     Extends Django's UserCreationForm.
     """
     year_group = forms.CharField(
-        max_length=4,
+        max_length=10,
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
@@ -52,6 +52,42 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'email', 'first_name', 'last_name', 'year_group', 'role')
+
+
+class IndividualRegistrationForm(UserCreationForm):
+    """
+    Public registration form for alumni or sponsors submitting admission details.
+    """
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        field_class = 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500'
+        for field_name in ['password1', 'password2']:
+            self.fields[field_name].widget.attrs.update({'class': field_class})
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.role = 'individual'
+        if commit:
+            user.save()
+        return user
 
 
 class LoginForm(forms.Form):

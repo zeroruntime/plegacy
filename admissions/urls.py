@@ -10,6 +10,7 @@ urlpatterns = [
     path('records/<int:pk>/', views.admission_detail, name='admission_detail'),
     path('records/<int:pk>/edit/', views.admission_edit, name='admission_edit'),
     path('records/<int:pk>/delete/', views.admission_delete, name='admission_delete'),
+    path('records/<int:pk>/validate/', views.admission_validate, name='admission_validate'),
     path('export/detailed/', views.export_detailed_excel, name='export_detailed'),
     path('export/summary/', views.export_summary_excel, name='export_summary'),
 ]

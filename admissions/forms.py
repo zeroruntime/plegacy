@@ -1,5 +1,31 @@
 from django import forms
 from .models import AdmissionRecord
+from .choices import (
+    ALUMNI_HOUSE_CHOICES,
+    ALUMNI_RELATIONSHIP_CHOICES,
+    ALUMNI_YEAR_GROUP_CHOICES,
+    BECE_SUBJECTS,
+    PARENT_RELATIONSHIP_CHOICES,
+    PROGRAM_CHOICES,
+    choice_list_with_blank,
+)
+
+
+FIELD_CLASS = 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500'
+
+
+def subject_grade_field_name(index):
+    return f'subject_grade_{index}'
+
+
+def parse_subject_grades(value):
+    grades = {}
+    for line in (value or '').splitlines():
+        if ':' not in line:
+            continue
+        subject, grade = line.split(':', 1)
+        grades[subject.strip().upper()] = grade.strip()
+    return grades
 
 
 class AdmissionRecordForm(forms.ModelForm):
@@ -8,6 +34,27 @@ class AdmissionRecordForm(forms.ModelForm):
     All fields are user-editable except submitted_by and date_submitted.
     """
     
+    program_applied_for = forms.ChoiceField(
+        choices=choice_list_with_blank(PROGRAM_CHOICES, 'Select program'),
+        widget=forms.Select(attrs={'class': FIELD_CLASS}),
+    )
+    parent_relationship = forms.ChoiceField(
+        choices=choice_list_with_blank(PARENT_RELATIONSHIP_CHOICES, 'Select relationship'),
+        widget=forms.Select(attrs={'class': FIELD_CLASS}),
+    )
+    alumni_year_group = forms.ChoiceField(
+        choices=choice_list_with_blank(ALUMNI_YEAR_GROUP_CHOICES, 'Select year group'),
+        widget=forms.Select(attrs={'class': FIELD_CLASS}),
+    )
+    alumni_house = forms.ChoiceField(
+        choices=choice_list_with_blank(ALUMNI_HOUSE_CHOICES, 'Select house'),
+        widget=forms.Select(attrs={'class': FIELD_CLASS}),
+    )
+    alumni_relationship = forms.ChoiceField(
+        choices=choice_list_with_blank(ALUMNI_RELATIONSHIP_CHOICES, 'Select relationship'),
+        widget=forms.Select(attrs={'class': FIELD_CLASS}),
+    )
+
     class Meta:
         model = AdmissionRecord
         fields = [
@@ -55,8 +102,6 @@ class AdmissionRecordForm(forms.ModelForm):
             'birth_certificate',
             'medical_form',
             
-            # Status
-            'status',
         ]
         
         widgets = {
@@ -98,17 +143,9 @@ class AdmissionRecordForm(forms.ModelForm):
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
                 'placeholder': 'Aggregate score',
             }),
-            'subjects_and_grades': forms.Textarea(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'Subjects and grades (English, Math, Science, Social Studies, etc.)',
-                'rows': 3,
-            }),
+            'subjects_and_grades': forms.HiddenInput(),
             
             # Program & Accommodation
-            'program_applied_for': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'e.g., General Science, Business',
-            }),
             'accommodation_status': forms.Select(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
             }),
@@ -117,10 +154,6 @@ class AdmissionRecordForm(forms.ModelForm):
             'parent_name': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
                 'placeholder': 'Full name',
-            }),
-            'parent_relationship': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'e.g., Parent, Guardian',
             }),
             'parent_occupation': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
@@ -145,17 +178,9 @@ class AdmissionRecordForm(forms.ModelForm):
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
                 'placeholder': 'Full name of PRESEC Old Boy',
             }),
-            'alumni_year_group': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'e.g., 1998, 2005',
-            }),
             'alumni_class_stream': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
                 'placeholder': 'e.g., Science 2, Business 1',
-            }),
-            'alumni_house': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'House at PRESEC',
             }),
             'alumni_phone': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
@@ -172,10 +197,6 @@ class AdmissionRecordForm(forms.ModelForm):
             'alumni_organization': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
                 'placeholder': 'Current organization/institution',
-            }),
-            'alumni_relationship': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'Relationship to applicant',
             }),
             'reason_for_recommendation': forms.Textarea(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
@@ -200,9 +221,6 @@ class AdmissionRecordForm(forms.ModelForm):
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
                 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png',
             }),
-            'status': forms.Select(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-            }),
         }
     
     def __init__(self, *args, **kwargs):
@@ -212,3 +230,42 @@ class AdmissionRecordForm(forms.ModelForm):
         # Make BECE results optional (will be uploaded later)
         self.fields['bece_results'].required = False
         self.fields['subjects_and_grades'].required = False
+        existing_subject_grades = parse_subject_grades(
+            self.initial.get('subjects_and_grades')
+            or getattr(self.instance, 'subjects_and_grades', '')
+        )
+        self.subject_grade_fields = []
+        for index, subject in enumerate(BECE_SUBJECTS):
+            field_name = subject_grade_field_name(index)
+            self.fields[field_name] = forms.CharField(
+                label=subject,
+                required=False,
+                initial=existing_subject_grades.get(subject, ''),
+                widget=forms.TextInput(attrs={
+                    'class': FIELD_CLASS,
+                    'inputmode': 'numeric',
+                    'pattern': '[0-9]*',
+                    'data-numeric-grade': 'true',
+                    'aria-label': f'{subject} grade',
+                }),
+            )
+            self.subject_grade_fields.append({
+                'subject': subject,
+                'field': self[field_name],
+            })
+
+    def clean(self):
+        cleaned_data = super().clean()
+        subject_lines = []
+
+        for index, subject in enumerate(BECE_SUBJECTS):
+            field_name = subject_grade_field_name(index)
+            grade = str(cleaned_data.get(field_name) or '').strip()
+            if grade and not grade.isdigit():
+                self.add_error(field_name, 'Enter numbers only.')
+                continue
+            if grade:
+                subject_lines.append(f'{subject}: {grade}')
+
+        cleaned_data['subjects_and_grades'] = '\n'.join(subject_lines)
+        return cleaned_data

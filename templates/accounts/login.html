@@ -7,35 +7,45 @@
     <title>Login - PRESEC Legacy Admissions</title>
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
-<body class="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 min-h-screen flex items-center justify-center">
+<body class="bg-custom min-h-screen flex items-center justify-center">
 
     <div class="w-full max-w-md">
         <!-- Card -->
-        <div class="bg-white rounded-lg shadow-2xl overflow-hidden">
-            <!-- Header -->
-            <div class="bg-blue-900 text-white p-6 text-center">
+            <div class="text-white p-6 text-center mb-8">
                 <h1 class="text-3xl font-bold mb-2">PRESEC Legacy Admissions</h1>
                 <p class="text-blue-100">Alumni Admission System</p>
             </div>
+        <div class="bg-white rounded-lg shadow-2xl overflow-hidden">
+
+            <!-- Header -->
 
             <!-- Form Container -->
             <div class="p-8">
                 {% if messages %}
                     {% for message in messages %}
-                        <div class="mb-4 p-4 rounded-lg {% if message.tags %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                        <div class="mb-4 p-4 rounded-lg {% if 'error' in message.tags %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
                             <p>{{ message }}</p>
                         </div>
                     {% endfor %}
                 {% endif %}
 
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Login</h2>
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
 
                 <form method="post" novalidate>
                     {% csrf_token %}
+                                        
+                    {% if form.non_field_errors %}
+                        <div class="mb-6 p-4 bg-red-100 text-red-800 rounded-lg">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
 
                     <!-- Username/Email Field -->
                     <div class="mb-6">
-                        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="{{ form.username.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-2">
                             {{ form.username.label }}
                         </label>
                         {{ form.username }}
@@ -50,7 +60,7 @@
 
                     <!-- Password Field -->
                     <div class="mb-6">
-                        <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="{{ form.password.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-2">
                             {{ form.password.label }}
                         </label>
                         {{ form.password }}
@@ -64,13 +74,6 @@
                     </div>
 
                     <!-- Non-field Errors -->
-                    {% if form.non_field_errors %}
-                        <div class="mb-6 p-4 bg-red-100 text-red-800 rounded-lg">
-                            {% for error in form.non_field_errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
 
                     <!-- Submit Button -->
                     <button type="submit" class="w-full bg-blue-900 text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition duration-200 mb-4">
@@ -80,6 +83,10 @@
 
                 <!-- Footer -->
                 <div class="text-center text-sm text-gray-600">
+                    <p class="mb-2">
+                        Submitting admission details?
+                        <a href="{% url 'accounts:register' %}" class="text-custom hover:underline font-semibold">Create an individual account</a>
+                    </p>
                     <p>For login issues, contact the administrator.</p>
                 </div>
             </div>

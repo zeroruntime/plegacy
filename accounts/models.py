@@ -10,10 +10,11 @@ class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
         ('president', 'Year Group President'),
+        ('individual', 'Individual'),
     ]
     
     year_group = models.CharField(
-        max_length=10,
+        max_length=20,
         help_text="Year group (e.g., 1998, 2005, 2015, 1993_shs, 1993_olevel)",
         blank=True
     )
@@ -45,3 +46,6 @@ class CustomUser(AbstractUser):
     
     def is_president(self):
         return self.role == 'president'
+
+    def is_individual(self):
+        return self.role == 'individual'

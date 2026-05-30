@@ -142,6 +142,13 @@ def export_to_excel(queryset):
             
             # Metadata
             'Submitted At': admission.date_submitted.strftime("%Y-%m-%d %H:%M"),
+            'Validation Status': admission.get_validation_status_display(),
+            'Validated By': (
+                admission.validated_by.get_full_name() or admission.validated_by.username
+                if admission.validated_by else ''
+            ),
+            'Validated At': admission.validated_at.strftime("%Y-%m-%d %H:%M") if admission.validated_at else '',
+            'Validation Notes': admission.validation_notes,
         })
  
     
@@ -261,6 +268,7 @@ def export_summary_to_excel(queryset):
             'Grade': admission.aggregate_score,
             'Old Boy Name': admission.alumni_name,
             'Old Boy Year Group': admission.alumni_year_group,
+            'Validation Status': admission.get_validation_status_display(),
         })
 
     # Convert to DataFrame
