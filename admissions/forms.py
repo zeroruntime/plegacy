@@ -5,13 +5,18 @@ from .choices import (
     ALUMNI_RELATIONSHIP_CHOICES,
     ALUMNI_YEAR_GROUP_CHOICES,
     BECE_SUBJECTS,
+    CLASS_COMPLETED_CHOICES,
+    NATIONALITY_CHOICES,
     PARENT_RELATIONSHIP_CHOICES,
     PROGRAM_CHOICES,
     choice_list_with_blank,
 )
+from .utils.aggregate_score import CORE_SUBJECTS, AggregateScoreError, calculate_aggregate_score
 
 
 FIELD_CLASS = 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500'
+DISABLED_FIELD_CLASS = f'{FIELD_CLASS} bg-gray-100 text-gray-700 cursor-not-allowed'
+BECE_YEAR = 2026
 
 
 def subject_grade_field_name(index):
@@ -52,6 +57,14 @@ class AdmissionRecordForm(forms.ModelForm):
     )
     alumni_relationship = forms.ChoiceField(
         choices=choice_list_with_blank(ALUMNI_RELATIONSHIP_CHOICES, 'Select relationship'),
+        widget=forms.Select(attrs={'class': FIELD_CLASS}),
+    )
+    nationality = forms.ChoiceField(
+        choices=choice_list_with_blank(NATIONALITY_CHOICES, 'Select nationality'),
+        widget=forms.Select(attrs={'class': FIELD_CLASS}),
+    )
+    class_completed = forms.ChoiceField(
+        choices=choice_list_with_blank(CLASS_COMPLETED_CHOICES, 'Select class completed'),
         widget=forms.Select(attrs={'class': FIELD_CLASS}),
     )
 
@@ -117,17 +130,9 @@ class AdmissionRecordForm(forms.ModelForm):
             'gender': forms.Select(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
             }),
-            'nationality': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'Applicant\'s nationality',
-            }),
             'previous_school': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
                 'placeholder': 'Previous basic school attended',
-            }),
-            'class_completed': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'e.g., JHS 3, Primary 6',
             }),
             
             # BECE Information
@@ -136,12 +141,11 @@ class AdmissionRecordForm(forms.ModelForm):
                 'placeholder': 'BECE Index Number',
             }),
             'bece_year': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'Year BECE was taken',
+                'class': DISABLED_FIELD_CLASS,
             }),
             'aggregate_score': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500',
-                'placeholder': 'Aggregate score',
+                'class': DISABLED_FIELD_CLASS,
+                'readonly': 'readonly',
             }),
             'subjects_and_grades': forms.HiddenInput(),
             
@@ -230,10 +234,21 @@ class AdmissionRecordForm(forms.ModelForm):
         # Make BECE results optional (will be uploaded later)
         self.fields['bece_results'].required = False
         self.fields['subjects_and_grades'].required = False
+        self.fields['bece_year'].initial = BECE_YEAR
+        self.fields['bece_year'].disabled = True
+        self.fields['aggregate_score'].required = False
+        self.fields['aggregate_score'].disabled = True
+        self.aggregate_score_subjects = []
         existing_subject_grades = parse_subject_grades(
             self.initial.get('subjects_and_grades')
             or getattr(self.instance, 'subjects_and_grades', '')
         )
+        try:
+            existing_aggregate_result = calculate_aggregate_score(existing_subject_grades)
+        except AggregateScoreError:
+            pass
+        else:
+            self.aggregate_score_subjects = existing_aggregate_result['subjects']
         self.subject_grade_fields = []
         for index, subject in enumerate(BECE_SUBJECTS):
             field_name = subject_grade_field_name(index)
@@ -246,6 +261,8 @@ class AdmissionRecordForm(forms.ModelForm):
                     'inputmode': 'numeric',
                     'pattern': '[0-9]*',
                     'data-numeric-grade': 'true',
+                    'data-subject': subject,
+                    'data-core-subject': 'true' if subject in CORE_SUBJECTS else 'false',
                     'aria-label': f'{subject} grade',
                 }),
             )
@@ -257,15 +274,41 @@ class AdmissionRecordForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         subject_lines = []
+        subject_grades = {}
+        has_grade_errors = False
 
         for index, subject in enumerate(BECE_SUBJECTS):
             field_name = subject_grade_field_name(index)
             grade = str(cleaned_data.get(field_name) or '').strip()
             if grade and not grade.isdigit():
                 self.add_error(field_name, 'Enter numbers only.')
+                has_grade_errors = True
                 continue
             if grade:
                 subject_lines.append(f'{subject}: {grade}')
+                subject_grades[subject] = grade
 
+        cleaned_data['bece_year'] = BECE_YEAR
         cleaned_data['subjects_and_grades'] = '\n'.join(subject_lines)
+
+        if not has_grade_errors:
+            try:
+                aggregate_result = calculate_aggregate_score(subject_grades)
+            except AggregateScoreError as exc:
+                self.add_error('subjects_and_grades', str(exc))
+            else:
+                aggregate_score = str(aggregate_result['score'])
+                cleaned_data['aggregate_score'] = aggregate_score
+                self.initial['aggregate_score'] = aggregate_score
+                self.fields['aggregate_score'].initial = aggregate_score
+                self.aggregate_score_subjects = aggregate_result['subjects']
+
         return cleaned_data
+
+    def aggregate_subject_summary(self):
+        if not self.aggregate_score_subjects:
+            return ''
+        return ', '.join(
+            f'{subject.title()} ({grade})'
+            for subject, grade in self.aggregate_score_subjects
+        )

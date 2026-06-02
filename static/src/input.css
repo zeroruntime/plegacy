@@ -307,7 +307,15 @@
     gap: 0.3rem;
   }
 
+  .field-group .field-help {
+    font-size: 0.8rem;
+    color: #4b5563;
+    line-height: 1.45;
+    margin-top: 0.4rem;
+  }
+
   .subject-grade-table {
+    margin-top: 0.65rem;
     overflow: hidden;
     border: 1px solid #e5e7eb;
     border-radius: 8px;

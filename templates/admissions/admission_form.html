@@ -176,15 +176,22 @@
                 {{ form.aggregate_score.label }}<span class="required-star">*</span>
               </label>
               {{ form.aggregate_score }}
+              {% with aggregate_subjects=form.aggregate_subject_summary %}
+              <p class="field-help" id="aggregate-score-help"{% if not aggregate_subjects %} hidden{% endif %}>
+                {% if aggregate_subjects %}Calculated from: {{ aggregate_subjects }}{% endif %}
+              </p>
+              {% endwith %}
               {% if form.aggregate_score.errors %}<p class="field-error">⚠ {{ form.aggregate_score.errors.0 }}</p>{% endif %}
             </div>
 
             <div class="field-group col-span-2">
               <label for="{{ form.subjects_and_grades.id_for_label }}">
                 {{ form.subjects_and_grades.label }}
-                <span class="optional-tag">(optional)</span>
               </label>
               {{ form.subjects_and_grades }}
+              <p class="field-help">
+                Enter grades from 1 to 9. Enter 0 only for subjects the applicant did not write. Aggregate is calculated from all 4 core subjects plus the best 2 elective subjects.
+              </p>
               <div class="subject-grade-table">
                 <div class="subject-grade-row subject-grade-header">
                   <div>Subject</div>
@@ -510,9 +517,73 @@
     });
   });
 
-  document.querySelectorAll('[data-numeric-grade="true"]').forEach(input => {
+  const gradeInputs = document.querySelectorAll('[data-numeric-grade="true"]');
+  const aggregateInput = document.getElementById('{{ form.aggregate_score.id_for_label }}');
+  const aggregateHelp = document.getElementById('aggregate-score-help');
+  let aggregateTimer = null;
+
+  function selectedSubjectText(subjects) {
+    return subjects
+      .map(item => `${item.subject.toLowerCase().replace(/\b\w/g, char => char.toUpperCase())} (${item.grade})`)
+      .join(', ');
+  }
+
+  function calculateAggregatePreview() {
+    const coreGrades = [];
+    const electiveGrades = [];
+
+    for (const input of gradeInputs) {
+      const rawValue = input.value.trim();
+      if (!rawValue) continue;
+
+      const grade = Number(rawValue);
+      if (!Number.isInteger(grade) || grade < 0 || grade > 9) {
+        aggregateInput.value = '';
+        aggregateHelp.hidden = false;
+        aggregateHelp.textContent = 'Grades must be from 0 to 9.';
+        return;
+      }
+
+      if (grade === 0) continue;
+
+      const result = {
+        subject: input.dataset.subject,
+        grade,
+      };
+
+      if (input.dataset.coreSubject === 'true') {
+        coreGrades.push(result);
+      } else {
+        electiveGrades.push(result);
+      }
+    }
+
+    if (coreGrades.length < 4 || electiveGrades.length < 2) {
+      aggregateInput.value = '';
+      aggregateHelp.hidden = false;
+      aggregateHelp.textContent = 'Enter valid grades for all 4 core subjects and at least 2 elective subjects.';
+      return;
+    }
+
+    const selectedCore = coreGrades.sort((a, b) => a.grade - b.grade).slice(0, 4);
+    const selectedElectives = electiveGrades.sort((a, b) => a.grade - b.grade).slice(0, 2);
+    const selectedSubjects = selectedCore.concat(selectedElectives);
+    const aggregateScore = selectedSubjects.reduce((total, item) => total + item.grade, 0);
+
+    aggregateInput.value = String(aggregateScore);
+    aggregateHelp.hidden = false;
+    aggregateHelp.textContent = `Calculated from: ${selectedSubjectText(selectedSubjects)}`;
+  }
+
+  function scheduleAggregatePreview() {
+    clearTimeout(aggregateTimer);
+    aggregateTimer = setTimeout(calculateAggregatePreview, 2000);
+  }
+
+  gradeInputs.forEach(input => {
     input.addEventListener('input', () => {
       input.value = input.value.replace(/\D/g, '');
+      scheduleAggregatePreview();
     });
   });
 

@@ -17,11 +17,21 @@
                 {% endif %}
             </p>
         </div>
-        {% if not is_president %}
-        <a href="{% url 'admissions:admission_create' %}" class="bg-custom text-white px-6 py-3 rounded-lg hover:bg-custom transition font-semibold">
-            + New Submission
-        </a>
-        {% endif %}
+        <div class="flex flex-wrap items-center gap-3">
+            {% if is_admin %}
+            <a href="{% url 'admissions:export_summary' %}" class="bg-gray-100 text-gray-800 px-5 py-3 rounded-lg hover:bg-gray-200 transition font-semibold">
+                Export Summary
+            </a>
+            <a href="{% url 'admissions:export_detailed' %}" class="bg-gray-100 text-gray-800 px-5 py-3 rounded-lg hover:bg-gray-200 transition font-semibold">
+                Export Detailed
+            </a>
+            {% endif %}
+            {% if not is_president %}
+            <a href="{% url 'admissions:admission_create' %}" class="bg-custom text-white px-6 py-3 rounded-lg hover:bg-custom transition font-semibold">
+                + New Submission
+            </a>
+            {% endif %}
+        </div>
     </div>
 </div>
 
@@ -119,6 +129,7 @@
         <table class="w-full">
             <thead class="bg-gray-50 border-b">
                 <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Alumni Sponsor</th>
                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Applicant Name</th>
                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Program</th>
                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Accommodation</th>
@@ -135,7 +146,8 @@
             <tbody>
                 {% for record in records %}
                 <tr class="border-b hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 font-semibold text-gray-800">{{ record.full_name }}</td>
+                    <td class="px-6 py-4 font-semibold text-gray-800">{{ record.alumni_name }}</td>
+                    <td class="px-6 py-4 text-gray-700">{{ record.full_name }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ record.program_applied_for }}</td>
                     <td class="px-6 py-4">
                         <span class="px-3 py-1 rounded-full text-sm font-semibold {% if record.accommodation_status == 'Boarding' %} text-blue-900 {% else %} text-blue-900{% endif %}">

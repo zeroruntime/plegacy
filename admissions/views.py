@@ -208,7 +208,7 @@ def admission_create(request):
             update_completion_status(admission)
             admission.save()
             add_validation_routing_message(request, admission)
-            return redirect('admissions:admission_detail', pk=admission.pk)
+            return redirect('admissions:admission_list')
     else:
         form = AdmissionRecordForm()
     
@@ -269,7 +269,7 @@ def admission_edit(request, pk):
                 updated_admission.validated_at = None
             updated_admission.save()
             add_validation_routing_message(request, updated_admission)
-            return redirect('admissions:admission_detail', pk=admission.pk)
+            return redirect('admissions:admission_list')
     else:
         form = AdmissionRecordForm(instance=admission)
     
@@ -350,7 +350,7 @@ def admission_validate(request, pk):
         'validated_at',
     ])
     messages.success(request, success_message)
-    return redirect('admissions:admission_detail', pk=admission.pk)
+    return redirect('admissions:admission_list')
 
 
 @login_required(login_url='accounts:login')

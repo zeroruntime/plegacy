@@ -34,6 +34,17 @@ PROGRAM_CHOICES = [
     ('General Science', 'General Science'),
 ]
 
+NATIONALITY_CHOICES = [
+    ('Ghanaian', 'Ghanaian'),
+    ('Non-Ghanaian', 'Non-Ghanaian'),
+]
+
+CLASS_COMPLETED_CHOICES = [
+    ('JHS 1', 'JHS 1'),
+    ('JHS 2', 'JHS 2'),
+    ('JHS 3', 'JHS 3'),
+]
+
 BECE_SUBJECTS = [
     'ARABIC',
     'CAREER TECHNOLOGY',
